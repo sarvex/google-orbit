@@ -57,12 +57,9 @@ def _wait_for_loading_and_measure_time(top_window) -> float:
         # This may raise an exception if the table is updated while gathering module states
         except:
             continue
-        all_modules_finalized = True
-        for module in modules:
-            if module.state not in MODULE_FINAL_STATES:
-                all_modules_finalized = False
-                break
-
+        all_modules_finalized = all(
+            module.state in MODULE_FINAL_STATES for module in modules
+        )
     total_time = time.time() - start_time
     logging.info(
         "Symbol loading has completed. Total time: {time:.2f} seconds".format(time=total_time))
@@ -172,7 +169,7 @@ class WaitForLoadingSymbolsAndVerifyCache(E2ETestCase):
             'Verifying cache. Found {total} modules in total, {loaded} of which are loaded'.format(
                 total=len(modules), loaded=len(loaded_modules)))
 
-        cached_files = [file for file in os.listdir(CACHE_LOCATION)]
+        cached_files = list(os.listdir(CACHE_LOCATION))
         cached_file_set = set(cached_files)
 
         for module in loaded_modules:
@@ -183,9 +180,10 @@ class WaitForLoadingSymbolsAndVerifyCache(E2ETestCase):
             cached_file_set.remove(expected_filename)
 
         self.expect_eq(
-            0, len(module_set),
-            'All successfully loaded modules are cached. Modules not found in cache: {}'.format(
-                [module.name for module in module_set]))
+            0,
+            len(module_set),
+            f'All successfully loaded modules are cached. Modules not found in cache: {[module.name for module in module_set]}',
+        )
 
     def _check_and_update_duration(self, storage_key: str, current_duration: float,
                                    expected_difference_ratio: float):
@@ -377,7 +375,9 @@ class FilterAndEnableFrameTrackForFunction(E2ETestCase):
 
         self.find_context_menu_item('Enable frame track(s)').click_input()
 
-        awaited_string: str = selected_function_string + ' ' + frame_track_enabled_string
+        awaited_string: str = (
+            f'{selected_function_string} {frame_track_enabled_string}'
+        )
         wait_for_condition(
             lambda: awaited_string in functions_dataview.get_item_at(0, 0).texts()[0])
 
@@ -626,7 +626,9 @@ class ShowSourceCode(E2ETestCase):
     def _provoke_goto_source_action(self, function_search_string: str):
         _show_symbols_and_functions_tabs(self.suite.top_window())
 
-        logging.info('Start showing source code for function {}'.format(function_search_string))
+        logging.info(
+            f'Start showing source code for function {function_search_string}'
+        )
         functions_dataview = DataViewPanel(self.find_control("Group", "FunctionsDataView"))
 
         logging.info('Waiting for function list to be populated...')

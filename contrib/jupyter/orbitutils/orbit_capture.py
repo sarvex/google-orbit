@@ -54,7 +54,7 @@ class OrbitCapture:
                 count_failed += 1
                 continue
         if count_failed != 0:
-            print("count_failed: " + str(count_failed))
+            print(f"count_failed: {str(count_failed)}")
 
     def read_section_list(self, file_content, section_list_offset):
         if (section_list_offset == 0):
@@ -64,7 +64,7 @@ class OrbitCapture:
         pos += 8
         self.sections = []
         while pos < section_list_offset + 3 * 8 * number_of_sections:
-            section_info = struct.unpack_from("<QQQ", file_content[pos:pos + 3*8])[0:3]
+            section_info = struct.unpack_from("<QQQ", file_content[pos:pos + 3*8])[:3]
             pos += 3 * 8
             self.sections.append(section_info)
         return

@@ -57,8 +57,11 @@ class VerifyBottomUpContentForLoadedCapture(E2ETestCase):
     """
 
     def _verify_row_count(self, tree_view_table: Table, expected_rows: int):
-        self.expect_eq(tree_view_table.get_row_count(), expected_rows,
-                       "Bottom-up view has {} rows".format(expected_rows))
+        self.expect_eq(
+            tree_view_table.get_row_count(),
+            expected_rows,
+            f"Bottom-up view has {expected_rows} rows",
+        )
 
     def _verify_first_rows(self, tree_view_table: Table, expectations: Sequence[Sequence[str]],
                            hidden_columns: Set[int]):
@@ -68,8 +71,10 @@ class VerifyBottomUpContentForLoadedCapture(E2ETestCase):
                     continue
                 expectation = expectations[i][j]
                 self.expect_eq(
-                    tree_view_table.get_item_at(i, j).window_text(), expectation,
-                    "Bottom-up view's cell ({}, {}) is '{}'".format(i, j, expectation))
+                    tree_view_table.get_item_at(i, j).window_text(),
+                    expectation,
+                    f"Bottom-up view's cell ({i}, {j}) is '{expectation}'",
+                )
 
     def _switch_to_tab(self, selection_tab: bool = False):
         if not selection_tab:
@@ -173,7 +178,7 @@ class VerifyBottomUpContentForLoadedCapture(E2ETestCase):
 
     def _verify_rows_on_search(self, tab, tree_view_table):
         search_term = 'eventfd_write'
-        logging.info("Searching bottom-up view for '{}'".format(search_term))
+        logging.info(f"Searching bottom-up view for '{search_term}'")
         search_bar = find_control(parent=tab, control_type='Edit', name='filter')
         search_bar.set_focus()
         send_keys(search_term)
@@ -192,11 +197,18 @@ class VerifyBottomUpContentForLoadedCapture(E2ETestCase):
                         continue
                     expectation = expectations[j]
                     self.expect_eq(
-                        tree_view_table.get_item_at(i, j).window_text(), expectation,
-                        "Bottom-up view's cell ({}, {}) is '{}'".format(i, j, expectation))
-        self.expect_eq(search_item_count, 1,
-                       "Searching bottom-up view for '{}' produces one result".format(search_term))
-        logging.info("Verified result of searching bottom-up view for '{}'".format(search_term))
+                        tree_view_table.get_item_at(i, j).window_text(),
+                        expectation,
+                        f"Bottom-up view's cell ({i}, {j}) is '{expectation}'",
+                    )
+        self.expect_eq(
+            search_item_count,
+            1,
+            f"Searching bottom-up view for '{search_term}' produces one result",
+        )
+        logging.info(
+            f"Verified result of searching bottom-up view for '{search_term}'"
+        )
 
         # Clear the search terms.
         search_bar.set_focus()

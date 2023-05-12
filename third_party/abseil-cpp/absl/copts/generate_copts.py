@@ -37,13 +37,13 @@ class CMakeStyle(object):
     return ""
 
   def list_introducer(self, name):
-    return "list(APPEND " + name
+    return f"list(APPEND {name}"
 
   def list_closer(self):
     return ")\n"
 
   def docstring(self):
-    return "\n".join((("# " + line).strip() for line in file_header_lines()))
+    return "\n".join(f"# {line}".strip() for line in file_header_lines())
 
   def filename(self):
     return "GENERATED_AbseilCopts.cmake"
@@ -56,7 +56,7 @@ class StarlarkStyle(object):
     return ","
 
   def list_introducer(self, name):
-    return name + " = ["
+    return f"{name} = ["
 
   def list_closer(self):
     return "]\n"

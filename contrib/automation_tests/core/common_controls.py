@@ -62,8 +62,7 @@ class Table:
         We really should not need to use the low-level API like this.
         """
         element_info = UIAElementInfo(self._table.iface_grid.GetItem(row, col))
-        wrapper = UIAWrapper(element_info)
-        return wrapper
+        return UIAWrapper(element_info)
 
     def find_first_item_row(self, text: str, column: int, partial_match=False) -> int or None:
         row_count = self.get_row_count()

@@ -11,10 +11,7 @@ def main():
     dir_path = os.path.dirname(os.path.realpath(__file__))
     tests = unittest.TestLoader().discover(dir_path, '*test.py', dir_path)
     result = unittest.TextTestRunner().run(tests)
-    if result.wasSuccessful():
-        return 0
-    else:
-        return 1
+    return 0 if result.wasSuccessful() else 1
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -50,11 +50,13 @@ class E2ETestCase:
     def expect_true(self, cond, description):
         if not cond:
             raise OrbitE2EError(
-                'Error executing testcase %s, fragment %s. Condition expected to be True: "%s"' %
-                (self.suite.name, self.__class__.__name__, description))
+                f'Error executing testcase {self.suite.name}, fragment {self.__class__.__name__}. Condition expected to be True: "{description}"'
+            )
 
     def expect_eq(self, left, right, description):
-        self.expect_true(left == right, description + " (got {}, expected {})".format(left, right))
+        self.expect_true(
+            left == right, f"{description} (got {left}, expected {right})"
+        )
 
     def find_control(self,
                      control_type=None,
@@ -192,8 +194,11 @@ class E2ETestSuite:
     def execute(self):
         self.set_up()
         for test in self._test_cases:
-            logging.info('Running test "%s (%s)"', test.__class__.__name__,
-                         ", ".join("%s=%s" % (k, v) for k, v in test.args.items()))
+            logging.info(
+                'Running test "%s (%s)"',
+                test.__class__.__name__,
+                ", ".join(f"{k}={v}" for k, v in test.args.items()),
+            )
             test.execute(self)
         self.tear_down()
 
@@ -236,8 +241,6 @@ def wait_for_condition(any_callable: Callable,
         except:
             if raise_exceptions:
                 raise
-            else:
-                pass
         time.sleep(interval)
     raise OrbitE2EError('Wait time exceeded')
 
@@ -274,7 +277,7 @@ def find_control(parent: BaseWrapper,
 
     if raise_on_failure:
         raise OrbitE2EError(
-            'Could not find element of type %s (name="%s", name_contains="%s", qt_class="%s", recurse=%s).'
-            % (control_type, name, name_contains, qt_class, recurse))
+            f'Could not find element of type {control_type} (name="{name}", name_contains="{name_contains}", qt_class="{qt_class}", recurse={recurse}).'
+        )
     else:
         return None

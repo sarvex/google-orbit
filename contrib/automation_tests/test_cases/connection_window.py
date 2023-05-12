@@ -219,21 +219,22 @@ class SelectProjectAndVerifyItHasAtLeastOneInstance(E2ETestCase):
     """
 
     def _execute(self, project_name: str):
-        logging.info('Select project with name ' + project_name)
+        logging.info(f'Select project with name {project_name}')
         project_combo_box = self.find_control(name='ProjectSelectionComboBox')
         # wait until loading is done
         wait_for_condition(lambda: project_combo_box.is_enabled() is True, 25)
         project_combo_box.click_input()
 
         project = self.find_combo_box_item(text=project_name)
-        logging.info('Expanded project combo box and found entry ' + project_name)
+        logging.info(f'Expanded project combo box and found entry {project_name}')
         project.click_input()
         # After project changing, loading takes place. Wait until the overlay is hidden
         wait_for_condition(
             lambda: self.find_control('Group', 'InstanceListOverlay', raise_on_failure=False) is
             None, 100)
-        logging.info('Successfully selected project ' + project_name +
-                     'and waited until loading is done')
+        logging.info(
+            f'Successfully selected project {project_name}and waited until loading is done'
+        )
         self.expect_true(_get_number_of_instances_in_list(self) >= 1, 'Found at least one instance')
 
 

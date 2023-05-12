@@ -29,7 +29,7 @@ def _verify_symbols_list_contains(symbol_path_list, location):
         if item.texts()[0] == location:
             return
 
-    raise OrbitE2EError("Found symbol file location {} in the list".format(location))
+    raise OrbitE2EError(f"Found symbol file location {location} in the list")
 
 def _wait_for_symbol_location_ui_close(top_window):
     wait_for_condition(
@@ -114,7 +114,9 @@ class ToggleEnableStadiaSymbolStore(E2ETestCase):
         ui = _show_and_get_symbol_location_ui(self.suite.top_window())
         checkbox = self.find_control('CheckBox', 'EnableStadiaSymbolStoreCheckBox', parent=ui)
         if checkbox.get_toggle_state() != enable_stadia_symbol_store:
-            logging.info('Toggling "Enable Stadia symbol store" checkbox to {}.'.format(enable_stadia_symbol_store))
+            logging.info(
+                f'Toggling "Enable Stadia symbol store" checkbox to {enable_stadia_symbol_store}.'
+            )
             checkbox.click_input()
         self.find_control('Button', 'Done', parent=ui).click_input()
         _wait_for_symbol_location_ui_close(self.suite.top_window())

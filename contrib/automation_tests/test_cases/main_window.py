@@ -42,8 +42,11 @@ class MoveTab(E2ETestCase):
         right_tab_count = self._count_tabs(right_tab_bar)
 
         tab_parent = tab_item.parent()
-        self.expect_eq(tab_parent, right_tab_bar,
-                       "%s tab is initialized in the right pane" % tab_title)
+        self.expect_eq(
+            tab_parent,
+            right_tab_bar,
+            f"{tab_title} tab is initialized in the right pane",
+        )
 
         # Move "Functions" tab to the left pane, check no. of tabs and if the tab is enabled
         logging.info('Moving tab to the left pane (current tab count: %d)', right_tab_count)
@@ -92,7 +95,7 @@ class DismissDialog(E2ETestCase):
     """
 
     def _execute(self, title_contains: str):
-        searchRegex = ".*" + title_contains + ".*"
+        searchRegex = f".*{title_contains}.*"
         dialog_box = self.suite.top_window().child_window(title_re=searchRegex,
                                                           control_type="Window")
         self.expect_true(dialog_box is not None, 'Dialog found.')

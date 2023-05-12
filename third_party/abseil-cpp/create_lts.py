@@ -35,19 +35,16 @@ def ReplaceStringsInFile(filename, replacement_dict):
   Raises:
     Exception: A failure occured
   """
-  f = open(filename, 'r')
-  content = f.read()
-  f.close()
-
+  with open(filename, 'r') as f:
+    content = f.read()
   for key, value in replacement_dict.items():
     original = content
     content = content.replace(key, value)
     if content == original:
-      raise Exception('Failed to find {} in {}'.format(key, filename))
+      raise Exception(f'Failed to find {key} in {filename}')
 
-  f = open(filename, 'w')
-  f.write(content)
-  f.close()
+  with open(filename, 'w') as f:
+    f.write(content)
 
 
 def StripContentBetweenTags(filename, strip_begin_tag, strip_end_tag):
@@ -64,24 +61,21 @@ def StripContentBetweenTags(filename, strip_begin_tag, strip_end_tag):
   Raises:
     Exception: A failure occured
   """
-  f = open(filename, 'r')
-  content = f.read()
-  f.close()
-
+  with open(filename, 'r') as f:
+    content = f.read()
   while True:
     begin = content.find(strip_begin_tag)
     if begin == -1:
       break
     end = content.find(strip_end_tag, begin + len(strip_begin_tag))
     if end == -1:
-      raise Exception('{}: imbalanced strip begin ({}) and '
-                      'end ({}) tags'.format(filename, strip_begin_tag,
-                                             strip_end_tag))
+      raise Exception(
+          f'{filename}: imbalanced strip begin ({strip_begin_tag}) and end ({strip_end_tag}) tags'
+      )
     content = content.replace(content[begin:end + len(strip_end_tag)], '')
 
-  f = open(filename, 'w')
-  f.write(content)
-  f.close()
+  with open(filename, 'w') as f:
+    f.write(content)
 
 
 def main(argv):
@@ -91,30 +85,34 @@ def main(argv):
 
   datestamp = sys.argv[1]
   if len(datestamp) != 8 or not datestamp.isdigit():
-    raise Exception(
-        'datestamp={} is not in the YYYYMMDD format'.format(datestamp))
+    raise Exception(f'datestamp={datestamp} is not in the YYYYMMDD format')
 
   # Replacement directives go here.
   ReplaceStringsInFile(
-      'absl/base/config.h', {
+      'absl/base/config.h',
+      {
           '#undef ABSL_LTS_RELEASE_VERSION':
-              '#define ABSL_LTS_RELEASE_VERSION {}'.format(datestamp),
+          f'#define ABSL_LTS_RELEASE_VERSION {datestamp}',
           '#undef ABSL_LTS_RELEASE_PATCH_LEVEL':
-              '#define ABSL_LTS_RELEASE_PATCH_LEVEL 0'
-      })
+          '#define ABSL_LTS_RELEASE_PATCH_LEVEL 0',
+      },
+  )
   ReplaceStringsInFile(
-      'absl/base/options.h', {
+      'absl/base/options.h',
+      {
           '#define ABSL_OPTION_USE_INLINE_NAMESPACE 0':
-              '#define ABSL_OPTION_USE_INLINE_NAMESPACE 1',
+          '#define ABSL_OPTION_USE_INLINE_NAMESPACE 1',
           '#define ABSL_OPTION_INLINE_NAMESPACE_NAME head':
-              '#define ABSL_OPTION_INLINE_NAMESPACE_NAME lts_{}'.format(
-                  datestamp)
-      })
+          f'#define ABSL_OPTION_INLINE_NAMESPACE_NAME lts_{datestamp}',
+      },
+  )
   ReplaceStringsInFile(
-      'CMakeLists.txt', {
+      'CMakeLists.txt',
+      {
           'project(absl LANGUAGES CXX)':
-              'project(absl LANGUAGES CXX VERSION {})'.format(datestamp)
-      })
+          f'project(absl LANGUAGES CXX VERSION {datestamp})'
+      },
+  )
   # Set the SOVERSION to YYMM.0.0 - The first 0 means we only have ABI
   # compatible changes, and the second 0 means we can increment it to
   # mark changes as ABI-compatible, for patch releases.  Note that we
@@ -124,7 +122,8 @@ def main(argv):
   # https://www.sicpers.info/2013/03/how-to-version-a-mach-o-library/
   ReplaceStringsInFile(
       'CMake/AbseilHelpers.cmake',
-      {'SOVERSION 0': 'SOVERSION "{}.0.0"'.format(datestamp[2:6])})
+      {'SOVERSION 0': f'SOVERSION "{datestamp[2:6]}.0.0"'},
+  )
   StripContentBetweenTags('CMakeLists.txt', '# absl:lts-remove-begin',
                           '# absl:lts-remove-end')
 

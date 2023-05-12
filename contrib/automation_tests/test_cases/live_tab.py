@@ -25,10 +25,14 @@ class LiveTabTestCase(E2ETestCase):
 
     def _find_scope_cell(self, scope_name) -> Tuple[BaseWrapper, int]:
         children = self.find_control('Tree', parent=self._live_tab).children()
-        for i in range(len(children)):
-            if scope_name in children[i].window_text():
-                return children[i], i
-        return None, -1
+        return next(
+            (
+                (children[i], i)
+                for i in range(len(children))
+                if scope_name in children[i].window_text()
+            ),
+            (None, -1),
+        )
 
 
 class AddIterator(LiveTabTestCase):
@@ -48,7 +52,9 @@ class AddIterator(LiveTabTestCase):
 
         # Find function_name in the live tab and add an iterator
         cell, _ = self._find_scope_cell(function_name)
-        self.expect_true(cell is not None, 'Found row containing function "%s"' % function_name)
+        self.expect_true(
+            cell is not None, f'Found row containing function "{function_name}"'
+        )
         cell.click_input(button='right')
         self.find_context_menu_item('Add iterator(s)').click_input()
 
@@ -90,11 +96,12 @@ class VerifyScopeTypeAndHitCount(LiveTabTestCase):
         logging.info('Found a hit count of %s, scope type: %s', hit_count, actual_scope_type)
         self.expect_true(
             min_hits <= hit_count <= max_hits,
-            'Hit count for scope "%s" expected to be between %s and %s, was %s' %
-            (scope_name, min_hits, max_hits, hit_count))
+            f'Hit count for scope "{scope_name}" expected to be between {min_hits} and {max_hits}, was {hit_count}',
+        )
         self.expect_true(
             actual_scope_type.startswith(scope_type),
-            'Scope "%s" expected to be of type %s , was %s' % (scope_name, scope_type, scope_type))
+            f'Scope "{scope_name}" expected to be of type {scope_type} , was {scope_type}',
+        )
 
 
 class VerifyOneFunctionWasHit(LiveTabTestCase):
@@ -113,5 +120,6 @@ class VerifyOneFunctionWasHit(LiveTabTestCase):
                                  call_count)
                     return
 
-        raise RuntimeError('No function matching "%s" has received the required hit count' %
-                           (function_name_contains))
+        raise RuntimeError(
+            f'No function matching "{function_name_contains}" has received the required hit count'
+        )

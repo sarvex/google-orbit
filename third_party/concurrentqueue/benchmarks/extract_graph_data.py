@@ -12,9 +12,13 @@ import re
 
 def extract(bench, log, data, hasBulk = True):
 	# data = { thread_count: [ locked, boost, tbb, moodycamel, moodycamel_tok, moodycamel_bulk ], ... }
-	
+
 	def do_extract(bench, queue_header):
-		block = re.search(r'^' + bench + r':.*?' + queue_header + r'\s*(.*?)\s*^\s*Operations per second', log, re.S | re.M | re.I).group(1)
+		block = re.search(
+			f'^{bench}:.*?{queue_header}' + r'\s*(.*?)\s*^\s*Operations per second',
+			log,
+			re.S | re.M | re.I,
+		)[1]
 		for threads, opsst in re.findall(r'^\s*(\d+)\s+thread.*?([0-9\.]+[kMG]?\s*$)', block, re.M | re.I):
 			threads = int(threads)
 			multiplier = 1
@@ -25,14 +29,14 @@ def extract(bench, log, data, hasBulk = True):
 			if threads not in data:
 				data[threads] = []
 			data[threads].append(opsst)
-	
+
 	do_extract(bench, 'LockBasedQueue')
 	do_extract(bench, 'boost::lockfree::queue')
 	do_extract(bench, 'tbb::concurrent_queue')
 	do_extract(bench, 'Without tokens')
 	do_extract(bench, 'With tokens')
 	if hasBulk:
-		do_extract(bench + ' bulk', 'With tokens')
+		do_extract(f'{bench} bulk', 'With tokens')
 
 
 def write_csv(data, path, hasBulk = True):
@@ -41,7 +45,7 @@ def write_csv(data, path, hasBulk = True):
 		for threads in sorted(data.keys()):
 			f.write(str(threads))
 			for opsst in data[threads]:
-				f.write(',' + str(opsst))
+				f.write(f',{str(opsst)}')
 			f.write('\n')
 
 

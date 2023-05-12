@@ -40,7 +40,7 @@ def strip(path):
       continue  # Stripping these libraries breaks signal handler unwinding.
     section = sections.get(name)
     if not section:
-      print("Warning: {} not found in {}".format(name, path))
+      print(f"Warning: {name} not found in {path}")
     if section and section["type"] != "NOBITS":
       offset, size = int(section["offset"], 16), int(section["size"], 16) & ~1
       with open(path, "r+b") as f:
@@ -55,7 +55,7 @@ def strip(path):
         f.write(data.tobytes())
 
   # gzip-compress the file to take advantage of the zeroed sections.
-  with open(path, 'rb') as src, gzip.open(path + ".gz", 'wb') as dst:
+  with (open(path, 'rb') as src, gzip.open(f"{path}.gz", 'wb') as dst):
     dst.write(src.read())
   os.remove(path)
 

@@ -29,9 +29,8 @@ def main():
     protos += " " + os.path.join(
         current_directory, "../../src/GrpcProtos/tracepoint.proto")
 
-    command = "protoc --python_out=" + orbitutils_path + " --proto_path=" + proto_path + protos
-    ret = os.system(command)
-    if ret:
+    command = f"protoc --python_out={orbitutils_path} --proto_path={proto_path}{protos}"
+    if ret := os.system(command):
         print("Command failed: ", command)
         sys.exit(ret)
 

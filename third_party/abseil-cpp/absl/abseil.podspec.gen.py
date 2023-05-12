@@ -62,7 +62,7 @@ def get_elem_value(elem, name):
       return child.attrib.get("value") == "true"
     if child.tag == "list":
       return [nested_child.attrib.get("value") for nested_child in child]
-    raise "Cannot recognize tag: " + child.tag
+    raise f"Cannot recognize tag: {child.tag}"
   return None
 
 
@@ -89,7 +89,7 @@ def parse_rule(elem, package):
 def read_build(package):
   """Runs bazel query on given package file and returns all cc rules."""
   result = subprocess.check_output(
-      ["bazel", "query", package + ":all", "--output", "xml"])
+      ["bazel", "query", f"{package}:all", "--output", "xml"])
   root = xml.etree.ElementTree.fromstring(result)
   return [
       parse_rule(elem, package)
@@ -104,7 +104,7 @@ def collect_rules(root_path):
   for cur, _, _ in os.walk(root_path):
     build_path = os.path.join(cur, "BUILD.bazel")
     if os.path.exists(build_path):
-      rules.extend(read_build("//" + cur))
+      rules.extend(read_build(f"//{cur}"))
   return rules
 
 
@@ -121,15 +121,14 @@ def relevant_rule(rule):
 
 def get_spec_var(depth):
   """Returns the name of variable for spec with given depth."""
-  return "s" if depth == 0 else "s{}".format(depth)
+  return "s" if depth == 0 else f"s{depth}"
 
 
 def get_spec_name(label):
   """Converts the label of bazel rule to the name of podspec."""
-  assert label.startswith("//absl/"), "{} doesn't start with //absl/".format(
-      label)
+  assert label.startswith("//absl/"), f"{label} doesn't start with //absl/"
   # e.g. //absl/apple/banana -> abseil/apple/banana
-  return "abseil/" + label[7:]
+  return f"abseil/{label[7:]}"
 
 
 def write_podspec(f, rules, args):
@@ -193,7 +192,7 @@ def write_podspec_rule(f, rule, depth):
 def write_indented_list(f, leading, values):
   """Writes leading values in an indented style."""
   f.write(leading)
-  f.write((",\n" + " " * len(leading)).join("'{}'".format(v) for v in values))
+  f.write((",\n" + " " * len(leading)).join(f"'{v}'" for v in values))
   f.write("\n")
 
 

@@ -89,16 +89,21 @@ class VerifyTopDownContentForLoadedCapture(E2ETestCase):
     """
 
     def _verify_row_count(self, tree_view_table: Table, expected_rows: int):
-        self.expect_eq(tree_view_table.get_row_count(), expected_rows,
-                       "Top-down view has {} rows".format(expected_rows))
+        self.expect_eq(
+            tree_view_table.get_row_count(),
+            expected_rows,
+            f"Top-down view has {expected_rows} rows",
+        )
 
     def _verify_first_rows(self, tree_view_table: Table, expectations: Sequence[Sequence[str]]):
         for i in range(len(expectations)):
             for j in range(len(expectations[i])):
                 expectation = expectations[i][j]
                 self.expect_eq(
-                    tree_view_table.get_item_at(i, j).window_text(), expectation,
-                    "Top-down view's cell ({}, {}) is '{}'".format(i, j, expectation))
+                    tree_view_table.get_item_at(i, j).window_text(),
+                    expectation,
+                    f"Top-down view's cell ({i}, {j}) is '{expectation}'",
+                )
 
     def _switch_to_tab(self, selection_tab: bool = False):
         if not selection_tab:
@@ -219,7 +224,7 @@ class VerifyTopDownContentForLoadedCapture(E2ETestCase):
 
     def _verify_rows_on_search(self, tab, tree_view_table):
         search_term = 'fputs'
-        logging.info("Searching top-down view for '{}'".format(search_term))
+        logging.info(f"Searching top-down view for '{search_term}'")
         search_bar = find_control(parent=tab, control_type='Edit', name='filter')
         search_bar.set_focus()
         send_keys(search_term)
@@ -236,11 +241,16 @@ class VerifyTopDownContentForLoadedCapture(E2ETestCase):
                 for j in range(len(expectations)):
                     expectation = expectations[j]
                     self.expect_eq(
-                        tree_view_table.get_item_at(i, j).window_text(), expectation,
-                        "Top-down view's cell ({}, {}) is '{}'".format(i, j, expectation))
-        self.expect_eq(search_item_count, 2,
-                       "Searching top-down view for '{}' produces two results".format(search_term))
-        logging.info("Verified result of searching top-down view for '{}'".format(search_term))
+                        tree_view_table.get_item_at(i, j).window_text(),
+                        expectation,
+                        f"Top-down view's cell ({i}, {j}) is '{expectation}'",
+                    )
+        self.expect_eq(
+            search_item_count,
+            2,
+            f"Searching top-down view for '{search_term}' produces two results",
+        )
+        logging.info(f"Verified result of searching top-down view for '{search_term}'")
 
         # Clear the search terms.
         search_bar.set_focus()
@@ -329,7 +339,11 @@ class VerifyTopDownContentForTriangleExe(E2ETestCase):
     @staticmethod
     def _find_thread_row(tree_view_table: Table, thread_name: str):
         for row in range(tree_view_table.get_row_count()):
-            if tree_view_table.get_item_at(row, 0).window_text().startswith(thread_name + " ["):
+            if (
+                tree_view_table.get_item_at(row, 0)
+                .window_text()
+                .startswith(f"{thread_name} [")
+            ):
                 return row
         raise OrbitE2EError(f"The top-down view has no '{thread_name}' thread")
 
